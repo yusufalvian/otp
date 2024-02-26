@@ -1,29 +1,38 @@
 import express from "express";
 import { getRedisClient } from "./redis";
-import * as nanoid from "nanoid";
+import { generate } from 'shortid';
 import { Repo, getDb } from "./db";
+import { Email } from "./email";
+import dotenv from 'dotenv';
+
 
 async function main() {
   const app = express();
   app.use(express.json());
+  dotenv.config();
+
+  const db = await getDb();
+  const repo = new Repo();
+  const email = new Email();
 
   app.get("/", (req, res) => {
     res.send("Health check");
   });
 
-  const db = await getDb();
-  const repo = new Repo();
+  app.post("/register", async (req, res) => {
 
-  // const OTP = nanoid.customAlphabet('1234567890', 6);
-
-  app.post("/register", (req, res) => {
-    console.log(req.body.email);
-    console.log(req.body.password);
-    repo.addUser(db, {
+    await repo.addUser(db, {
       email: req.body.email,
       password: req.body.password,
       is_active: false,
     });
+
+
+    const OTP = generate();
+    console.log(OTP);
+    await email.sendToEmail(req.body.email, OTP);
+    res.send("register success, next enter otp sent to your email to activate your account");
+    res.status(200);
   });
 
   // listen to port

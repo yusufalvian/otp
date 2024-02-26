@@ -21,17 +21,35 @@ export class Repo {
     getUser = async (db: any, email: string) => {
         const query = `SELECT * FROM users WHERE email = '${email}'`;
         const result: Users[] = await db.all(query);
-        return result[0];
+
+        await db.run(query, function (err: any, row) {
+            if (err) {
+                console.log("sqlite error");
+            } else {
+                return row[0];
+            }
+        });
+
     };
 
     addUser = async (db: any, user: Users) => {
-        const query = `INSERT INTO users (email, password, is_active) VALUES ('${user.email}', '${user.password}', ${user.is_active})`;
-        await db.run(query);
+        const query = `INSERT INTO users (email, password, is_active) VALUES ('${user.email}', '${user.password}', ${user.is_active});`;
+
+        await db.run(query, function (err: any) {
+            if (err) {
+                console.log("sqlite error");
+            }
+        });
+
     };
 
     updateUser = async (db: any, user: Users) => {
         const query = `UPDATE users SET email = '${user.email}', password = '${user.password}', is_active = ${user.is_active} WHERE email = '${user.email}'`;
-        await db.run(query);
+        await db.run(query, function (err: any) {
+            if (err) {
+                console.log("sqlite error");
+            }
+        });
     };
 }
 
