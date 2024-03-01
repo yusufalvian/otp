@@ -19,6 +19,7 @@ async function main() {
     res.send("Health check");
   });
 
+  // register user 
   app.post("/register", async (req, res) => {
 
     await repo.addUser(db, {
@@ -26,7 +27,6 @@ async function main() {
       password: req.body.password,
       is_active: false,
     });
-
 
     const OTP = generate();
     console.log(OTP);
