@@ -41,17 +41,30 @@ async function main() {
   });
 
 
-
   app.post('/verify', async (req, res) => {
-
+    // user input email and otp 
+    const validOtp = await redisClient.get(req.body.email);
+    // otp is invalid 
+    if (req.body.otp !== validOtp) {
+      res.send("OTP is false, try again");
+      res.status(400);
+    }
+    // otp is valid -> change is_active to true 
+    await repo.updateUser(db, {
+      email: req.body.email,
+      password: "",
+      is_active: true,
+    });
   });
 
   app.post('/resend', async (req, res) => {
-    {
-
-    }
+    const OTP = generate();
+    await redisClient.set(req.body.email, OTP);
+    await redisClient.expire(req.body.email, 60);
+    await email.sendToEmail(req.body.email, OTP);
+    res.send("resend success, next enter otp sent to your email to activate your account");
+    res.status(200);
   });
-
 
   // listen to port
   const port = process.env.PORT || 3000;
