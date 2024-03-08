@@ -11,7 +11,6 @@ async function main() {
   const redisClient = await getRedisClient();
   app.use(express.json());
   dotenv.config();
-
   const db = await getDb();
   const repo = new Repo();
   const email = new Email();
@@ -30,12 +29,17 @@ async function main() {
       is_active: false,
     });
 
-    // generate otp, save to redis with expiry time, and then send otp to user 
+    // generate otp
     const OTP = generate();
 
+    // save to redis with expiry time,
     await redisClient.set(req.body.email, OTP);
     await redisClient.expire(req.body.email, 60);
+
+    // send otp to user email
     await email.sendToEmail(req.body.email, OTP);
+
+    // return success message
     res.send("register success, next enter otp sent to your email to activate your account");
     res.status(200);
   });
@@ -45,13 +49,13 @@ async function main() {
     // user input email and otp 
     const validOtp = await redisClient.get(req.body.email);
 
-    // otp is invalid 
+    // otp is invalid and return error message
     if (req.body.otp !== validOtp) {
       res.send("OTP is false, try again");
       res.status(400);
     } else {
 
-      // otp is valid -> change is_active to true 
+      // otp is valid, change is_active to true, and then return success message
       await repo.updateUser(db, {
         email: req.body.email,
         password: "",
@@ -63,10 +67,17 @@ async function main() {
   });
 
   app.post('/resend', async (req, res) => {
+    // generate new otp 
     const OTP = generate();
+
+    // save to redis with expiry time. it will replace the old otp in redis
     await redisClient.set(req.body.email, OTP);
     await redisClient.expire(req.body.email, 60);
+
+    // send otp to user email
     await email.sendToEmail(req.body.email, OTP);
+
+    // return success message
     res.send("resend success, next enter otp sent to your email to activate your account");
     res.status(200);
   });

@@ -1,4 +1,5 @@
 import sqlite3 from 'sqlite3';
+import { Users } from './model';
 
 export const getDb = async () => {
     const db = new sqlite3.Database('sqlite.db', (err) => {
@@ -10,12 +11,6 @@ export const getDb = async () => {
     });
     return db;
 };
-
-interface Users {
-    email: string;
-    password: string;
-    is_active: boolean;
-}
 
 export class Repo {
     getUser = async (db: any, email: string) => {
