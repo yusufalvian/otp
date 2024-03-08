@@ -45,6 +45,7 @@ export class Repo {
 
     updateUser = async (db: any, user: Users) => {
         const query = `UPDATE users SET is_active = ${user.is_active} WHERE email = '${user.email}'`;
+
         await db.run(query, function (err: any) {
             if (err) {
                 console.log("sqlite error");

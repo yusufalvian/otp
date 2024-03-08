@@ -32,7 +32,7 @@ async function main() {
 
     // generate otp, save to redis with expiry time, and then send otp to user 
     const OTP = generate();
-    console.log(OTP);
+
     await redisClient.set(req.body.email, OTP);
     await redisClient.expire(req.body.email, 60);
     await email.sendToEmail(req.body.email, OTP);
@@ -40,21 +40,26 @@ async function main() {
     res.status(200);
   });
 
-
   app.post('/verify', async (req, res) => {
+
     // user input email and otp 
     const validOtp = await redisClient.get(req.body.email);
+
     // otp is invalid 
     if (req.body.otp !== validOtp) {
       res.send("OTP is false, try again");
       res.status(400);
+    } else {
+
+      // otp is valid -> change is_active to true 
+      await repo.updateUser(db, {
+        email: req.body.email,
+        password: "",
+        is_active: true,
+      });
+      res.send("your account is activated, you can now login");
+      res.status(200);
     }
-    // otp is valid -> change is_active to true 
-    await repo.updateUser(db, {
-      email: req.body.email,
-      password: "",
-      is_active: true,
-    });
   });
 
   app.post('/resend', async (req, res) => {

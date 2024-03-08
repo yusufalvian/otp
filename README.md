@@ -1,0 +1,6 @@
+- user register using email and password
+- email and password save to db with is_active = false
+- generate otp and save to redis with expiry time
+- send otp to user email
+- user enter otp to activate account
+- user can regenerate new otp and resend otp to user email 
