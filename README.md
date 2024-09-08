@@ -1,13 +1,15 @@
-- user register using email and password (/register)
+simple implementation of OTP (one time password). In this project, I use redis as a cache to store otp and outlook as email server. Here is the flow of this project :
+
+- user register using email and password (../register). This data is saved in redis with expiry time
 - email and password save to db with is_active = false
 - generate otp and save to redis with expiry time
 - send otp to user email
-- user enter otp to activate account (/verify)
-- user can regenerate new otp and resend otp to user email (/resend)
+- user enter otp to activate account (../verify)
+- user can regenerate new otp and resend otp to user email (../resend)
 
-Request Body :
+### Request Body
 
-- /register
+- ../register
 
 ```json
 {
@@ -16,7 +18,7 @@ Request Body :
 }
 ```
 
-- /verify
+- ../verify
 
 ```json
 {
@@ -25,7 +27,7 @@ Request Body :
 }
 ```
 
-- /resend
+- ../resend
 
 ```json
 {
@@ -33,6 +35,14 @@ Request Body :
 }
 ```
 
-TODO :
-
-- hash password before save to db
+### dependencies
+```json
+"dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.18.1",
+    "nodejs-nodemailer-outlook": "^1.2.4",
+    "redis": "^4.6.13",
+    "shortid": "^2.2.16",
+    "sqlite3": "^5.1.7"
+  }
+```
